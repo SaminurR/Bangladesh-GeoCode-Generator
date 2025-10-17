@@ -238,15 +238,25 @@
                     <b>Div+Dist+Upa</b> (zero-padded: 2,2,3).</span>
             </div>
         </div>
+
+        <!-- Reverse Lookup -->
+        <div class="panel" id="reverse-lookup" style="margin-top:16px">
+            <p class="title">Find location from Unique Code</p>
+            <div class="search">
+                <input id="revCode" type="text" placeholder="Enter 2/4/7-digit code, e.g. 0537286" />
+                <button id="revBtn" class="btn">Find</button>
+            </div>
+            <div id="revResult" class="chips">
+                <span class="small">Type a code and hit Enter or click Find.</span>
+            </div>
+        </div>
     </div>
 
     <script>
         /* =========================
            PASTE YOUR DATA BELOW
-           (either raw arrays OR phpMyAdmin wrapper)
+           (leave the variable names exactly the same)
            ========================= */
-
-        // 1) Divisions
         const divisionsData = [
             { "id": "1", "name": "Chattagram", "bn_name": "চট্টগ্রাম", "url": "www.chittagongdiv.gov.bd" },
             { "id": "2", "name": "Rajshahi", "bn_name": "রাজশাহী", "url": "www.rajshahidiv.gov.bd" },
@@ -257,8 +267,6 @@
             { "id": "7", "name": "Rangpur", "bn_name": "রংপুর", "url": "www.rangpurdiv.gov.bd" },
             { "id": "8", "name": "Mymensingh", "bn_name": "ময়মনসিংহ", "url": "www.mymensinghdiv.gov.bd" }
         ];
-
-        // 2) Districts
         const districtsData = [
             { "id": "1", "division_id": "1", "name": "Comilla", "bn_name": "কুমিল্লা", "lat": "23.4682747", "lon": "91.1788135", "url": "www.comilla.gov.bd" },
             { "id": "2", "division_id": "1", "name": "Feni", "bn_name": "ফেনী", "lat": "23.023231", "lon": "91.3840844", "url": "www.feni.gov.bd" },
@@ -325,8 +333,6 @@
             { "id": "63", "division_id": "8", "name": "Jamalpur", "bn_name": "জামালপুর", "lat": "24.937533", "lon": "89.937775", "url": "www.jamalpur.gov.bd" },
             { "id": "64", "division_id": "8", "name": "Netrokona", "bn_name": "নেত্রকোণা", "lat": "24.870955", "lon": "90.727887", "url": "www.netrokona.gov.bd" }
         ];
-
-        // 3) Upazilas
         const upazilasData = [
             { "id": "1", "district_id": "1", "name": "Debidwar", "bn_name": "দেবিদ্বার", "url": "debidwar.comilla.gov.bd" },
             { "id": "2", "district_id": "1", "name": "Barura", "bn_name": "বরুড়া", "url": "barura.comilla.gov.bd" },
@@ -825,15 +831,13 @@
         ];
 
         /* =========================
-           DATA ADAPTER (works with raw arrays OR phpMyAdmin wrapper)
+           DATA ADAPTER
            ========================= */
         const toInt = v => {
             const n = parseInt(String(v ?? '').replace(/[^\d]/g, ''), 10);
             return Number.isFinite(n) ? n : 0;
         };
 
-        // If user pastes phpMyAdmin export (array with objects having type/table/data),
-        // unwrap its .data; else just return the array itself.
         function unwrap(input) {
             if (Array.isArray(input) && input.length && typeof input[0] === 'object' && 'type' in input[0]) {
                 const tbl = input.find(x => x && x.type === 'table' && Array.isArray(x.data));
@@ -846,20 +850,12 @@
         const _dists = unwrap(districtsData);
         const _upas = unwrap(upazilasData);
 
-        // Normalize + trim so id comparisons are ALWAYS numeric and reliable
-        const DIVISIONS = _divs.map(d => ({
-            id: toInt(d.id), name: (d.name || '').trim(), bn: (d.bn_name || '').trim()
-        })).filter(d => d.id > 0);
-
-        const DISTRICTS = _dists.map(d => ({
-            id: toInt(d.id), division_id: toInt(d.division_id),
-            name: (d.name || '').trim(), bn: (d.bn_name || '').trim()
-        })).filter(d => d.id > 0 && d.division_id > 0);
-
-        const UPAZILAS = _upas.map(u => ({
-            id: toInt(u.id), district_id: toInt(u.district_id),
-            name: (u.name || '').trim(), bn: (u.bn_name || '').trim()
-        })).filter(u => u.id > 0 && u.district_id > 0);
+        const DIVISIONS = _divs.map(d => ({ id: toInt(d.id), name: (d.name || '').trim(), bn: (d.bn_name || '').trim() }))
+            .filter(d => d.id > 0);
+        const DISTRICTS = _dists.map(d => ({ id: toInt(d.id), division_id: toInt(d.division_id), name: (d.name || '').trim(), bn: (d.bn_name || '').trim() }))
+            .filter(d => d.id > 0 && d.division_id > 0);
+        const UPAZILAS = _upas.map(u => ({ id: toInt(u.id), district_id: toInt(u.district_id), name: (u.name || '').trim(), bn: (u.bn_name || '').trim() }))
+            .filter(u => u.id > 0 && u.district_id > 0);
 
         /* =========================
            STATE + HELPERS
@@ -897,7 +893,7 @@
         }
 
         /* =========================
-           RENDERERS (with robust id matching)
+           RENDERERS
            ========================= */
         function renderDivisions() {
             const q = $("#qDiv").value.trim().toLowerCase();
@@ -963,7 +959,11 @@
 
         $("#copyBtn").onclick = async () => {
             const t = $("#code").textContent.trim(); if (!t || t === "—") return;
-            try { await navigator.clipboard.writeText(t); $("#copyBtn").textContent = "Copied!"; setTimeout(() => $("#copyBtn").textContent = "Copy", 900); } catch (e) { }
+            try {
+                await navigator.clipboard.writeText(t);
+                $("#copyBtn").textContent = "Copied!";
+                setTimeout(() => $("#copyBtn").textContent = "Copy", 900);
+            } catch (e) { }
         };
 
         /* =========================
@@ -972,21 +972,66 @@
         renderDivisions(); renderDistricts(); renderUpazilas(); chips(); setCode();
     </script>
 
+    <script>
+        /* Reverse lookup (fixed): reads existing arrays directly (no window.*) */
+        (function () {
+            function chip(txt) {
+                const s = document.createElement('span');
+                s.className = 'chip';
+                s.textContent = txt;
+                return s;
+            }
+            function showResult(parts) {
+                const box = document.getElementById('revResult');
+                box.innerHTML = '';
+                if (!parts || !parts.length) {
+                    box.innerHTML = '<span class="small">Not found. Check the code.</span>';
+                    return;
+                }
+                parts.forEach(p => box.appendChild(chip(p)));
+            }
+            function arrays() {
+                // Safely access globals even if undefined
+                return {
+                    DIVS: (typeof DIVISIONS !== 'undefined') ? DIVISIONS : [],
+                    DISTS: (typeof DISTRICTS !== 'undefined') ? DISTRICTS : [],
+                    UPAS: (typeof UPAZILAS !== 'undefined') ? UPAZILAS : []
+                };
+            }
+            function lookupFromCode() {
+                const raw = (document.getElementById('revCode').value || '').trim();
+                const digits = (raw.match(/\d+/g) || []).join('');
+                if (!digits || ![2, 4, 7].includes(digits.length)) { showResult([]); return; }
 
-    <!-- Reverse Lookup -->
-    <div class="panel" id="reverse-lookup">
-        <p class="title">Find location from Unique Code</p>
-        <div class="search">
-            <input id="revCode" type="text" placeholder="Enter 2/4/7-digit code, e.g. 0537286" />
-            <button id="revBtn" class="btn">Find</button>
-        </div>
-        <div id="revResult" class="chips">
-            <span class="small">Type a code and hit Enter or click Find.</span>
-        </div>
-    </div>
+                const { DIVS, DISTS, UPAS } = arrays();
 
+                const divId = parseInt(digits.slice(0, 2), 10);
+                const div = DIVS.find(d => d.id === divId);
+                if (!div) { showResult([]); return; }
 
+                const out = [`Division: ${div.name} (id ${div.id})`];
 
+                if (digits.length >= 4) {
+                    const distId = parseInt(digits.slice(2, 4), 10);
+                    const dist = DISTS.find(d => d.id === distId && d.division_id === divId);
+                    if (!dist) { showResult(out); return; }
+                    out.push(`District: ${dist.name} (id ${dist.id})`);
+
+                    if (digits.length === 7) {
+                        const upaId = parseInt(digits.slice(4, 7), 10);
+                        const upa = UPAS.find(u => u.id === upaId && u.district_id === distId);
+                        if (upa) out.push(`Upazila: ${upa.name} (id ${upa.id})`);
+                    }
+                }
+                showResult(out);
+            }
+
+            document.getElementById('revBtn').addEventListener('click', lookupFromCode);
+            document.getElementById('revCode').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') lookupFromCode();
+            });
+        })();
+    </script>
 </body>
 
 </html>
