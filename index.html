@@ -4,17 +4,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bangladesh GeoCode Generator (Fixed)</title>
+  <title>Bangladesh GeoCode Generator (Polished)</title>
+
+  <!-- Leaflet.js for Embedded Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Google Font (Poppins - a close alternative to Product Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #ffffff;
+      --bg: #f8fafc;
       --card: #ffffff;
-      --muted: #637287;
+      --muted: #64748b;
       --text: #0f172a;
-      --accent: #2563eb;
-      --border: #e5e7eb;
-      --chip: #f3f4f6;
-      --shadow: 0 10px 24px rgba(0, 0, 0, .06)
+      --accent: #4f46e5;
+      --border: #e2e8f0;
+      --chip: #f1f5f9;
+      --shadow: 0 4px 12px rgba(0, 0, 0, .08);
+      --transition-speed: 0.3s;
+    }
+
+    /* === Dark Mode Theme === */
+    body.dark-mode {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --muted: #94a3b8;
+      --text: #e2e8f0;
+      --border: #334155;
+      --chip: #334155;
+      --shadow: 0 4px 12px rgba(0, 0, 0, .15);
     }
 
     * {
@@ -23,30 +47,38 @@
 
     body {
       margin: 0;
-      font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Poppins', Inter, system-ui, sans-serif;
       color: var(--text);
-      background: var(--bg)
+      background: var(--bg);
+      transition: background-color var(--transition-speed), color var(--transition-speed);
     }
 
     .wrap {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 28px auto;
       padding: 0 16px
     }
 
     .top {
       display: flex;
+      flex-wrap: wrap;
       gap: 16px;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px
+      margin-bottom: 12px
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     h1 {
       font-size: 28px;
       margin: 0;
       font-weight: 800;
-      letter-spacing: .2px
     }
 
     .codebox {
@@ -56,7 +88,7 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 10px 12px;
-      background: #fafafa
+      background: var(--card);
     }
 
     .code {
@@ -65,19 +97,22 @@
     }
 
     .btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       appearance: none;
       border: 1px solid var(--border);
-      background: #f8fafc;
-      color: #0f172a;
+      background: var(--card);
+      color: var(--text);
       padding: 10px 14px;
       border-radius: 10px;
       font-weight: 600;
-      cursor: pointer
+      cursor: pointer;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed);
     }
 
     .btn:hover {
-      background: #eef2ff;
-      border-color: #c7d2fe
+      background: var(--chip)
     }
 
     .grid {
@@ -96,13 +131,32 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       box-shadow: var(--shadow);
-      padding: 16px
+      padding: 16px;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
     }
 
     .title {
       font-size: 18px;
       font-weight: 700;
-      margin: 0 0 6px
+      margin: 0;
+    }
+
+    .counter-chip {
+      font-size: 12px;
+      font-weight: 600;
+      background-color: var(--chip);
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 8px;
     }
 
     label {
@@ -125,17 +179,25 @@
       padding: 11px 12px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background: #fff;
-      outline: none
+      background: var(--bg);
+      outline: none;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed);
+    }
+
+    .search input:focus {
+      border-color: var(--accent);
     }
 
     .list {
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 8px;
-      background: #fff;
+      background: var(--bg);
       max-height: 300px;
-      overflow: auto
+      overflow: auto;
+      flex-grow: 1;
     }
 
     .item {
@@ -149,7 +211,7 @@
     }
 
     .item:hover {
-      background: #f9fafb
+      background: var(--chip)
     }
 
     .subtitle {
@@ -161,13 +223,14 @@
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-top: 8px
+      margin-top: 8px;
+      min-height: 32px;
     }
 
     .chip {
       background: var(--chip);
       border: 1px solid var(--border);
-      color: #111827;
+      color: var(--text);
       padding: 6px 10px;
       border-radius: 999px
     }
@@ -176,12 +239,190 @@
       display: flex;
       gap: 10px;
       align-items: center;
-      margin-top: 12px
+      margin-top: auto;
+      padding-top: 16px;
     }
 
     .small {
       font-size: 12px;
       color: #6b7280
+    }
+
+    .map-icon {
+      flex-shrink: 0;
+      padding: 5px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+
+    .map-icon:hover {
+      background-color: var(--chip);
+    }
+
+    .map-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--muted);
+    }
+
+    .item-content {
+      flex-grow: 1;
+    }
+
+    .breadcrumbs {
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .breadcrumbs a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+
+    .breadcrumbs span {
+      margin: 0 8px;
+    }
+
+    /* === NEW: Main content layout grid === */
+    .main-content-grid {
+      display: grid;
+      gap: 18px;
+      margin-top: 16px;
+    }
+
+    @media(min-width: 980px) {
+      .main-content-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    #map-container {
+      min-height: 250px;
+      border-radius: 16px;
+      z-index: 0;
+      background-color: var(--chip);
+      flex-grow: 1;
+    }
+
+    /* === NEW: Animated Toggle Switches === */
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border);
+      transition: var(--transition-speed);
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: var(--transition-speed);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    input:checked+.slider {
+      background-color: var(--accent);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(26px);
+    }
+
+    .slider svg {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      transition: opacity 0.3s, transform 0.3s ease;
+    }
+
+    .slider .sun-icon {
+      left: 8px;
+      stroke: #f59e0b;
+    }
+
+    .slider .moon-icon {
+      right: 8px;
+      stroke: #f1f5f9;
+      opacity: 0;
+      transform: translateY(-50%) rotate(-90deg);
+    }
+
+    input:checked+.slider .sun-icon {
+      opacity: 0;
+      transform: translateY(-50%) rotate(90deg);
+    }
+
+    input:checked+.slider .moon-icon {
+      opacity: 1;
+      transform: translateY(-50%) rotate(0);
+    }
+
+    .lang-slider .lang-text {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      font-weight: 700;
+      pointer-events: none;
+      transition: color var(--transition-speed);
+    }
+
+    .lang-slider .en-text {
+      left: 11px;
+      color: white;
+    }
+
+    .lang-slider .bn-text {
+      right: 10px;
+      color: var(--muted);
+    }
+
+    input:checked+.lang-slider .en-text {
+      color: var(--muted);
+    }
+
+    input:checked+.lang-slider .bn-text {
+      color: white;
     }
   </style>
 </head>
@@ -189,7 +430,31 @@
 <body>
   <div class="wrap">
     <div class="top">
-      <h1>Bangladesh GeoCode Generator</h1>
+      <div class="header-left">
+        <h1>Bangladesh GeoCode Generator</h1>
+        <div class="controls">
+          <label class="switch" title="Toggle Theme">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider">
+              <svg class="sun-icon" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path
+                  d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.95-4.243-1.59-1.59M3 12h2.25m.386-6.364 1.59 1.591M12 12a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z" />
+              </svg>
+              <svg class="moon-icon" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path
+                  d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25c0 5.385 4.365 9.75 9.75 9.75 2.572 0 4.92-.99 6.697-2.648Z" />
+              </svg>
+            </span>
+          </label>
+          <label class="switch" title="Switch Language">
+            <input type="checkbox" id="langToggle">
+            <span class="slider lang-slider">
+              <span class="lang-text en-text">EN</span>
+              <span class="lang-text bn-text">BN</span>
+            </span>
+          </label>
+        </div>
+      </div>
       <div class="codebox">
         <span class="small">Unique Code</span>
         <span id="code" class="code">—</span>
@@ -197,66 +462,65 @@
       </div>
     </div>
 
+    <div id="breadcrumbs" class="breadcrumbs"></div>
+
     <div class="grid">
-      <!-- Division -->
       <div class="panel">
-        <p class="title">State / Division</p>
-        <div class="search">
-          <input id="qDiv" type="text" placeholder="Search division (e.g., Dhaka)" />
-          <button id="clearDiv" class="btn">Clear</button>
+        <div class="title-wrap">
+          <p class="title">State / Division</p><span id="divCounter" class="counter-chip"></span>
         </div>
+        <div class="search"><input id="qDiv" type="text" placeholder="Search division..." /><button id="clearDiv"
+            class="btn">Clear</button></div>
         <div id="listDiv" class="list"></div>
       </div>
-
-      <!-- District -->
       <div class="panel">
-        <p class="title">District</p>
-        <div class="search">
-          <input id="qDist" type="text" placeholder="Search district" />
-          <button id="clearDist" class="btn">Clear</button>
+        <div class="title-wrap">
+          <p class="title">District</p><span id="distCounter" class="counter-chip"></span>
         </div>
+        <div class="search"><input id="qDist" type="text" placeholder="Search district..." /><button id="clearDist"
+            class="btn">Clear</button></div>
         <div id="listDist" class="list"></div>
       </div>
-
-      <!-- Upazila -->
       <div class="panel">
-        <p class="title">Upazila / Thana</p>
-        <div class="search">
-          <input id="qUpa" type="text" placeholder="Search upazila" />
-          <button id="clearUpa" class="btn">Clear</button>
+        <div class="title-wrap">
+          <p class="title">Upazila / Thana</p><span id="upaCounter" class="counter-chip"></span>
         </div>
+        <div class="search"><input id="qUpa" type="text" placeholder="Search upazila..." /><button id="clearUpa"
+            class="btn">Clear</button></div>
         <div id="listUpa" class="list"></div>
       </div>
     </div>
 
-    <div class="panel" style="margin-top:16px">
-      <label>Current Selection</label>
-      <div class="chips" id="chips"></div>
-      <div class="footer">
-        <button id="clearAll" class="btn">Clear All</button>
-        <span class="small">Code builds progressively from IDs: <b>Div</b> → <b>Div+Dist</b> →
-          <b>Div+Dist+Upa</b> (zero-padded: 2,2,3).</span>
+    <!-- NEW Main Content Layout -->
+    <div class="main-content-grid">
+      <div class="panel" id="selection-panel">
+        <label>Current Selection</label>
+        <div class="chips" id="chips"></div>
+        <div class="footer">
+          <button id="clearAll" class="btn">Clear All</button>
+          <span class="small">Code builds from IDs: <b>Div</b> → <b>Dist</b> → <b>Upa</b>.</span>
+        </div>
+        <!-- Reverse Lookup is now inside this panel -->
+        <div id="reverse-lookup" style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px;">
+          <p class="title" style="margin:0 0 10px;">Find from Unique Code</p>
+          <div class="search"><input id="revCode" type="text" placeholder="Enter 2/4/7-digit code..." /><button
+              id="revBtn" class="btn">Find</button>
+          </div>
+          <div id="revResult" class="chips"><span class="small">Type a code and hit Enter or click
+              Find.</span></div>
+        </div>
       </div>
-    </div>
-
-    <!-- Reverse Lookup -->
-    <div class="panel" id="reverse-lookup" style="margin-top:16px">
-      <p class="title">Find location from Unique Code</p>
-      <div class="search">
-        <input id="revCode" type="text" placeholder="Enter 2/4/7-digit code, e.g. 0537286" />
-        <button id="revBtn" class="btn">Find</button>
-      </div>
-      <div id="revResult" class="chips">
-        <span class="small">Type a code and hit Enter or click Find.</span>
+      <div class="panel">
+        <p class="title">Map View</p>
+        <div id="map-container"></div>
       </div>
     </div>
   </div>
 
   <script>
-    /* =========================
-       PASTE YOUR DATA BELOW
-       (leave the variable names exactly the same)
-       ========================= */
+    /* ==================================
+       INSERT YOUR GEO DATA ARRAYS HERE
+       ================================== */
     const divisionsData = [
       { "id": "1", "name": "Chattagram", "bn_name": "চট্টগ্রাম", "url": "www.chittagongdiv.gov.bd" },
       { "id": "2", "name": "Rajshahi", "bn_name": "রাজশাহী", "url": "www.rajshahidiv.gov.bd" },
@@ -265,16 +529,18 @@
       { "id": "5", "name": "Sylhet", "bn_name": "সিলেট", "url": "www.sylhetdiv.gov.bd" },
       { "id": "6", "name": "Dhaka", "bn_name": "ঢাকা", "url": "www.dhakadiv.gov.bd" },
       { "id": "7", "name": "Rangpur", "bn_name": "রংপুর", "url": "www.rangpurdiv.gov.bd" },
-      { "id": "8", "name": "Mymensingh", "bn_name": "ময়মনসিংহ", "url": "www.mymensinghdiv.gov.bd" }
+      { "id": "8", "name": "Mymensingh", "bn_name": "ময়মনসিংহ", "url": "www.mymensinghdiv.gov.bd" },
+      { "id": "9", "name": "Faridpur", "bn_name": "ফরিদপুর", "url": "" },
+      { "id": "10", "name": "Comilla", "bn_name": "কুমিল্লা", "url": "" }
     ];
     const districtsData = [
-      { "id": "1", "division_id": "1", "name": "Comilla", "bn_name": "কুমিল্লা", "lat": "23.4682747", "lon": "91.1788135", "url": "www.comilla.gov.bd" },
-      { "id": "2", "division_id": "1", "name": "Feni", "bn_name": "ফেনী", "lat": "23.023231", "lon": "91.3840844", "url": "www.feni.gov.bd" },
-      { "id": "3", "division_id": "1", "name": "Brahmanbaria", "bn_name": "ব্রাহ্মণবাড়িয়া", "lat": "23.9570904", "lon": "91.1119286", "url": "www.brahmanbaria.gov.bd" },
+      { "id": "1", "division_id": "10", "name": "Comilla", "bn_name": "কুমিল্লা", "lat": "23.4682747", "lon": "91.1788135", "url": "www.comilla.gov.bd" },
+      { "id": "2", "division_id": "10", "name": "Feni", "bn_name": "ফেনী", "lat": "23.023231", "lon": "91.3840844", "url": "www.feni.gov.bd" },
+      { "id": "3", "division_id": "10", "name": "Brahmanbaria", "bn_name": "ব্রাহ্মণবাড়িয়া", "lat": "23.9570904", "lon": "91.1119286", "url": "www.brahmanbaria.gov.bd" },
       { "id": "4", "division_id": "1", "name": "Rangamati", "bn_name": "রাঙ্গামাটি", "lat": "22.65561018", "lon": "92.17541121", "url": "www.rangamati.gov.bd" },
-      { "id": "5", "division_id": "1", "name": "Noakhali", "bn_name": "নোয়াখালী", "lat": "22.869563", "lon": "91.099398", "url": "www.noakhali.gov.bd" },
-      { "id": "6", "division_id": "1", "name": "Chandpur", "bn_name": "চাঁদপুর", "lat": "23.2332585", "lon": "90.6712912", "url": "www.chandpur.gov.bd" },
-      { "id": "7", "division_id": "1", "name": "Lakshmipur", "bn_name": "লক্ষ্মীপুর", "lat": "22.942477", "lon": "90.841184", "url": "www.lakshmipur.gov.bd" },
+      { "id": "5", "division_id": "10", "name": "Noakhali", "bn_name": "নোয়াখালী", "lat": "22.869563", "lon": "91.099398", "url": "www.noakhali.gov.bd" },
+      { "id": "6", "division_id": "10", "name": "Chandpur", "bn_name": "চাঁদপুর", "lat": "23.2332585", "lon": "90.6712912", "url": "www.chandpur.gov.bd" },
+      { "id": "7", "division_id": "10", "name": "Lakshmipur", "bn_name": "লক্ষ্মীপুর", "lat": "22.942477", "lon": "90.841184", "url": "www.lakshmipur.gov.bd" },
       { "id": "8", "division_id": "1", "name": "Chattogram", "bn_name": "চট্টগ্রাম", "lat": "22.335109", "lon": "91.834073", "url": "www.chittagong.gov.bd" },
       { "id": "9", "division_id": "1", "name": "Coxsbazar", "bn_name": "কক্সবাজার", "lat": "21.44315751", "lon": "91.97381741", "url": "www.coxsbazar.gov.bd" },
       { "id": "10", "division_id": "1", "name": "Khagrachhari", "bn_name": "খাগড়াছড়ি", "lat": "23.119285", "lon": "91.984663", "url": "www.khagrachhari.gov.bd" },
@@ -309,17 +575,17 @@
       { "id": "39", "division_id": "5", "name": "Sunamganj", "bn_name": "সুনামগঞ্জ", "lat": "25.0658042", "lon": "91.3950115", "url": "www.sunamganj.gov.bd" },
       { "id": "40", "division_id": "6", "name": "Narsingdi", "bn_name": "নরসিংদী", "lat": "23.932233", "lon": "90.71541", "url": "www.narsingdi.gov.bd" },
       { "id": "41", "division_id": "6", "name": "Gazipur", "bn_name": "গাজীপুর", "lat": "24.0022858", "lon": "90.4264283", "url": "www.gazipur.gov.bd" },
-      { "id": "42", "division_id": "6", "name": "Shariatpur", "bn_name": "শরীয়তপুর", "lat": "23.2060195", "lon": "90.3477725", "url": "www.shariatpur.gov.bd" },
+      { "id": "42", "division_id": "9", "name": "Shariatpur", "bn_name": "শরীয়তপুর", "lat": "23.2060195", "lon": "90.3477725", "url": "www.shariatpur.gov.bd" },
       { "id": "43", "division_id": "6", "name": "Narayanganj", "bn_name": "নারায়ণগঞ্জ", "lat": "23.63366", "lon": "90.496482", "url": "www.narayanganj.gov.bd" },
       { "id": "44", "division_id": "6", "name": "Tangail", "bn_name": "টাঙ্গাইল", "lat": "24.264145", "lon": "89.918029", "url": "www.tangail.gov.bd" },
       { "id": "45", "division_id": "6", "name": "Kishoreganj", "bn_name": "কিশোরগঞ্জ", "lat": "24.444937", "lon": "90.776575", "url": "www.kishoreganj.gov.bd" },
       { "id": "46", "division_id": "6", "name": "Manikganj", "bn_name": "মানিকগঞ্জ", "lat": "23.8602262", "lon": "90.0018293", "url": "www.manikganj.gov.bd" },
       { "id": "47", "division_id": "6", "name": "Dhaka", "bn_name": "ঢাকা", "lat": "23.7115253", "lon": "90.4111451", "url": "www.dhaka.gov.bd" },
       { "id": "48", "division_id": "6", "name": "Munshiganj", "bn_name": "মুন্সিগঞ্জ", "lat": "23.5435742", "lon": "90.5354327", "url": "www.munshiganj.gov.bd" },
-      { "id": "49", "division_id": "6", "name": "Rajbari", "bn_name": "রাজবাড়ী", "lat": "23.7574305", "lon": "89.6444665", "url": "www.rajbari.gov.bd" },
-      { "id": "50", "division_id": "6", "name": "Madaripur", "bn_name": "মাদারীপুর", "lat": "23.164102", "lon": "90.1896805", "url": "www.madaripur.gov.bd" },
-      { "id": "51", "division_id": "6", "name": "Gopalganj", "bn_name": "গোপালগঞ্জ", "lat": "23.0050857", "lon": "89.8266059", "url": "www.gopalganj.gov.bd" },
-      { "id": "52", "division_id": "6", "name": "Faridpur", "bn_name": "ফরিদপুর", "lat": "23.6070822", "lon": "89.8429406", "url": "www.faridpur.gov.bd" },
+      { "id": "49", "division_id": "9", "name": "Rajbari", "bn_name": "রাজবাড়ী", "lat": "23.7574305", "lon": "89.6444665", "url": "www.rajbari.gov.bd" },
+      { "id": "50", "division_id": "9", "name": "Madaripur", "bn_name": "মাদারীপুর", "lat": "23.164102", "lon": "90.1896805", "url": "www.madaripur.gov.bd" },
+      { "id": "51", "division_id": "9", "name": "Gopalganj", "bn_name": "গোপালগঞ্জ", "lat": "23.0050857", "lon": "89.8266059", "url": "www.gopalganj.gov.bd" },
+      { "id": "52", "division_id": "9", "name": "Faridpur", "bn_name": "ফরিদপুর", "lat": "23.6070822", "lon": "89.8429406", "url": "www.faridpur.gov.bd" },
       { "id": "53", "division_id": "7", "name": "Panchagarh", "bn_name": "পঞ্চগড়", "lat": "26.3411", "lon": "88.5541606", "url": "www.panchagarh.gov.bd" },
       { "id": "54", "division_id": "7", "name": "Dinajpur", "bn_name": "দিনাজপুর", "lat": "25.6217061", "lon": "88.6354504", "url": "www.dinajpur.gov.bd" },
       { "id": "55", "division_id": "7", "name": "Lalmonirhat", "bn_name": "লালমনিরহাট", "lat": "25.9165451", "lon": "89.4532409", "url": "www.lalmonirhat.gov.bd" },
@@ -365,7 +631,7 @@
       { "id": "29", "district_id": "3", "name": "Akhaura", "bn_name": "আখাউড়া", "url": "akhaura.brahmanbaria.gov.bd" },
       { "id": "30", "district_id": "3", "name": "Nabinagar", "bn_name": "নবীনগর", "url": "nabinagar.brahmanbaria.gov.bd" },
       { "id": "31", "district_id": "3", "name": "Bancharampur", "bn_name": "বাঞ্ছারামপুর", "url": "bancharampur.brahmanbaria.gov.bd" },
-      { "id": "32", "district_id": "3", "name": "Bijoynagar", "bn_name": "বিজয়নগর", "url": "bijoynagar.brahmanbaria.gov.bd    " },
+      { "id": "32", "district_id": "3", "name": "Bijoynagar", "bn_name": "বিজয়নগর", "url": "bijoynagar.brahmanbaria.gov.bd" },
       { "id": "33", "district_id": "4", "name": "Rangamati Sadar", "bn_name": "রাঙ্গামাটি সদর", "url": "sadar.rangamati.gov.bd" },
       { "id": "34", "district_id": "4", "name": "Kaptai", "bn_name": "কাপ্তাই", "url": "kaptai.rangamati.gov.bd" },
       { "id": "35", "district_id": "4", "name": "Kawkhali", "bn_name": "কাউখালী", "url": "kawkhali.rangamati.gov.bd" },
@@ -387,7 +653,7 @@
       { "id": "51", "district_id": "5", "name": "Sonaimori", "bn_name": "সোনাইমুড়ী", "url": "sonaimori.noakhali.gov.bd" },
       { "id": "52", "district_id": "6", "name": "Haimchar", "bn_name": "হাইমচর", "url": "haimchar.chandpur.gov.bd" },
       { "id": "53", "district_id": "6", "name": "Kachua", "bn_name": "কচুয়া", "url": "kachua.chandpur.gov.bd" },
-      { "id": "54", "district_id": "6", "name": "Shahrasti", "bn_name": "শাহরাস্তি\t", "url": "shahrasti.chandpur.gov.bd" },
+      { "id": "54", "district_id": "6", "name": "Shahrasti", "bn_name": "শাহরাস্তি", "url": "shahrasti.chandpur.gov.bd" },
       { "id": "55", "district_id": "6", "name": "Chandpur Sadar", "bn_name": "চাঁদপুর সদর", "url": "sadar.chandpur.gov.bd" },
       { "id": "56", "district_id": "6", "name": "Matlab South", "bn_name": "মতলব দক্ষিণ", "url": "matlabsouth.chandpur.gov.bd" },
       { "id": "57", "district_id": "6", "name": "Hajiganj", "bn_name": "হাজীগঞ্জ", "url": "hajiganj.chandpur.gov.bd" },
@@ -827,211 +1093,287 @@
       { "id": "491", "district_id": "64", "name": "Netrokona Sadar", "bn_name": "নেত্রকোণা সদর", "url": "netrokonasadar.netrokona.gov.bd" },
       { "id": "492", "district_id": "9", "name": "Eidgaon", "bn_name": "ঈদগাঁও", "url": "null" },
       { "id": "493", "district_id": "39", "name": "Madhyanagar", "bn_name": "মধ্যনগর", "url": "null" },
-      { "id": "494", "district_id": "50", "name": "Dasar", "bn_name": "ডাসার", "url": "null" }
+      { "id": "494", "district_id": "50", "name": "Dasar", "bn_name": "ডাসার", "url": "null" },
+      { "id": "495", "district_id": "38", "name": "Shayestaganj", "bn_name": "শায়েস্তাগঞ্জ", "url": "shayestaganj.habiganj.gov.bd" }
     ];
 
     /* =========================
        DATA ADAPTER
        ========================= */
-    const toInt = v => {
-      const n = parseInt(String(v ?? '').replace(/[^\d]/g, ''), 10);
-      return Number.isFinite(n) ? n : 0;
-    };
-
-    function unwrap(input) {
-      if (Array.isArray(input) && input.length && typeof input[0] === 'object' && 'type' in input[0]) {
-        const tbl = input.find(x => x && x.type === 'table' && Array.isArray(x.data));
-        return tbl ? tbl.data : [];
-      }
-      return Array.isArray(input) ? input : [];
-    }
-
-    const _divs = unwrap(divisionsData);
-    const _dists = unwrap(districtsData);
-    const _upas = unwrap(upazilasData);
-
-    const DIVISIONS = _divs.map(d => ({ id: toInt(d.id), name: (d.name || '').trim(), bn: (d.bn_name || '').trim() }))
-      .filter(d => d.id > 0);
-    const DISTRICTS = _dists.map(d => ({ id: toInt(d.id), division_id: toInt(d.division_id), name: (d.name || '').trim(), bn: (d.bn_name || '').trim() }))
-      .filter(d => d.id > 0 && d.division_id > 0);
-    const UPAZILAS = _upas.map(u => ({ id: toInt(u.id), district_id: toInt(u.district_id), name: (u.name || '').trim(), bn: (u.bn_name || '').trim() }))
-      .filter(u => u.id > 0 && u.district_id > 0);
+    const toInt = v => { const n = parseInt(String(v ?? '').replace(/[^\d]/g, ''), 10); return Number.isFinite(n) ? n : 0; };
+    const _divs = Array.isArray(divisionsData) ? divisionsData : [];
+    const _dists = Array.isArray(districtsData) ? districtsData : [];
+    const _upas = Array.isArray(upazilasData) ? upazilasData : [];
+    const DIVISIONS = _divs.map(d => ({ id: toInt(d.id), name: (d.name || '').trim(), bn: (d.bn_name || '').trim() })).filter(d => d.id > 0);
+    const DISTRICTS = _dists.map(d => ({ ...d, id: toInt(d.id), division_id: toInt(d.division_id), name: (d.name || '').trim(), bn: (d.bn_name || '').trim() })).filter(d => d.id > 0 && d.division_id > 0);
+    const UPAZILAS = _upas.map(u => ({ id: toInt(u.id), district_id: toInt(u.district_id), name: (u.name || '').trim(), bn: (u.bn_name || '').trim() })).filter(u => u.id > 0 && u.district_id > 0);
 
     /* =========================
-       STATE + HELPERS
+       GLOBAL STATE & HELPERS
        ========================= */
     let selDiv = null, selDist = null, selUpa = null;
+    let currentLanguage = localStorage.getItem('geocodeLang') || 'en';
     const $ = s => document.querySelector(s);
     const pad = (n, w) => String(toInt(n)).padStart(w, '0');
 
     function computeCode() {
-      if (!selDiv) return "";
-      const a = pad(selDiv.id, 2);
-      if (!selDist) return a;
-      const b = pad(selDist.id, 2);
-      if (!selUpa) return a + b;
-      return a + b + pad(selUpa.id, 3);
+      if (!selDiv) return ""; const a = pad(selDiv.id, 2);
+      if (!selDist) return a; const b = pad(selDist.id, 2);
+      if (!selUpa) return a + b; return a + b + pad(selUpa.id, 3);
     }
+
     function setCode() { $("#code").textContent = computeCode() || "—"; }
 
-    function item(label, sub, onClick) {
-      const div = document.createElement('div');
-      div.className = 'item';
-      const left = document.createElement('div');
-      left.innerHTML = `<div>${label}</div><div class="subtitle">${sub}</div>`;
-      div.appendChild(left);
-      div.onclick = onClick;
-      return div;
+    function item(data, onClick) {
+      const label = currentLanguage === 'bn' ? data.bn : data.name;
+      const sub = currentLanguage === 'bn' ? `id ${data.id} • ${data.name}` : `id ${data.id} • ${data.bn}`;
+      const itemWrapper = document.createElement('div');
+      itemWrapper.className = 'item';
+      const content = document.createElement('div');
+      content.className = 'item-content';
+      content.innerHTML = `<div>${label}</div><div class="subtitle">${sub}</div>`;
+      content.onclick = onClick;
+      const mapLink = document.createElement('a');
+      mapLink.className = 'map-icon';
+      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.name + ", Bangladesh")}`;
+      mapLink.target = '_blank';
+      mapLink.title = `View ${data.name} on Google Maps`;
+      mapLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>`;
+      mapLink.onclick = (e) => e.stopPropagation();
+      itemWrapper.appendChild(content);
+      itemWrapper.appendChild(mapLink);
+      return itemWrapper;
     }
+
     function chip(txt) { const s = document.createElement('span'); s.className = 'chip'; s.textContent = txt; return s; }
+
     function chips() {
       const box = $("#chips"); box.innerHTML = "";
-      if (selDiv) box.appendChild(chip(`Division: ${selDiv.name} (id ${selDiv.id})`));
-      if (selDist) box.appendChild(chip(`District: ${selDist.name} (id ${selDist.id})`));
-      if (selUpa) box.appendChild(chip(`Upazila: ${selUpa.name} (id ${selUpa.id})`));
-      if (!selDiv && !selDist && !selUpa) box.innerHTML = '<span class="small">Nothing selected yet.</span>';
+      if (selDiv) box.appendChild(chip(`${currentLanguage === 'bn' ? 'বিভাগ' : 'Division'}: ${currentLanguage === 'bn' ? selDiv.bn : selDiv.name}`));
+      if (selDist) box.appendChild(chip(`${currentLanguage === 'bn' ? 'জেলা' : 'District'}: ${currentLanguage === 'bn' ? selDist.bn : selDist.name}`));
+      if (selUpa) box.appendChild(chip(`${currentLanguage === 'bn' ? 'উপজেলা' : 'Upazila'}: ${currentLanguage === 'bn' ? selUpa.bn : selUpa.name}`));
+      if (!selDiv && !selDist && !selUpa) box.innerHTML = `<span class="small">${currentLanguage === 'bn' ? 'এখনো কিছু নির্বাচন করা হয়নি।' : 'Nothing selected yet.'}</span>`;
+    }
+
+    /* ================================
+       CORE FEATURES
+       ================================ */
+    function updateCounters() {
+      $("#divCounter").textContent = `${DIVISIONS.length} ${currentLanguage === 'bn' ? 'বিভাগ' : 'Divisions'}`;
+      let distCount = selDiv ? DISTRICTS.filter(d => d.division_id === selDiv.id).length : DISTRICTS.length;
+      $("#distCounter").textContent = `${distCount} ${currentLanguage === 'bn' ? 'জেলা' : 'Districts'}`;
+      let upaCount;
+      if (selDist) { upaCount = UPAZILAS.filter(u => u.district_id === selDist.id).length; }
+      else if (selDiv) {
+        const distIds = DISTRICTS.filter(d => d.division_id === selDiv.id).map(d => d.id);
+        upaCount = UPAZILAS.filter(u => distIds.includes(u.district_id)).length;
+      } else { upaCount = UPAZILAS.length; }
+      $("#upaCounter").textContent = `${upaCount} ${currentLanguage === 'bn' ? 'উপজেলা' : 'Upazilas'}`;
+    }
+
+    function updateBreadcrumbs() {
+      const container = $("#breadcrumbs");
+      container.innerHTML = `<a href="#">${currentLanguage === 'bn' ? 'হোম' : 'Home'}</a>`;
+      if (selDiv) container.innerHTML += `<span>&gt;</span><a href="#" data-level="div">${currentLanguage === 'bn' ? selDiv.bn : selDiv.name}</a>`;
+      if (selDist) container.innerHTML += `<span>&gt;</span><a href="#" data-level="dist">${currentLanguage === 'bn' ? selDist.bn : selDist.name}</a>`;
+      if (selUpa) container.innerHTML += `<span>&gt;</span>${currentLanguage === 'bn' ? selUpa.bn : selUpa.name}`;
+
+      container.querySelectorAll('a').forEach(link => {
+        link.onclick = (e) => {
+          e.preventDefault();
+          const level = e.target.getAttribute('data-level');
+          if (!level) { clearAllSelections(); }
+          if (level === 'div') { selDist = null; selUpa = null; }
+          rerenderAll();
+        };
+      });
+    }
+
+    function updateURL() {
+      const code = computeCode();
+      const newUrl = code ? `${window.location.pathname}?geocode=${code}` : window.location.pathname;
+      history.pushState({ geocode: code }, '', newUrl);
+    }
+
+    let map, mapMarker;
+    function initMap() {
+      L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
+      map = L.map('map-container').setView([23.6850, 90.3563], 7);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+    }
+
+    function updateMap() {
+      if (selDist && selDist.lat && selDist.lon) {
+        const lat = parseFloat(selDist.lat);
+        const lon = parseFloat(selDist.lon);
+        if (isNaN(lat) || isNaN(lon)) return;
+        const locName = currentLanguage === 'bn' ? selDist.bn : selDist.name;
+
+        if (mapMarker) { map.removeLayer(mapMarker); }
+        map.flyTo([lat, lon], 11);
+        mapMarker = L.marker([lat, lon]).addTo(map).bindPopup(`<b>${locName}</b>`).openPopup();
+      } else {
+        if (mapMarker) { map.removeLayer(mapMarker); }
+        map.flyTo([23.6850, 90.3563], 7);
+      }
     }
 
     /* =========================
        RENDERERS
        ========================= */
     function renderDivisions() {
-      const q = $("#qDiv").value.trim().toLowerCase();
-      const list = $("#listDiv"); list.innerHTML = "";
-      DIVISIONS
-        .filter(d => !q || d.name.toLowerCase().includes(q) || d.bn.toLowerCase().includes(q))
-        .forEach(d => list.appendChild(item(d.name, `id ${d.id} • ${d.bn}`, () => {
-          selDiv = d; selDist = null; selUpa = null;
-          renderDistricts(); renderUpazilas(); chips(); setCode();
-        })));
+      const q = $("#qDiv").value.trim().toLowerCase(); const list = $("#listDiv"); list.innerHTML = "";
+      DIVISIONS.filter(d => !q || d.name.toLowerCase().includes(q) || d.bn.toLowerCase().includes(q))
+        .forEach(d => list.appendChild(item(d, () => { selDiv = d; selDist = null; selUpa = null; rerenderAll(); })));
     }
 
     function renderDistricts() {
-      const q = $("#qDist").value.trim().toLowerCase();
-      const list = $("#listDist"); list.innerHTML = "";
+      const q = $("#qDist").value.trim().toLowerCase(); const list = $("#listDist"); list.innerHTML = "";
       const pool = selDiv ? DISTRICTS.filter(x => toInt(x.division_id) === toInt(selDiv.id)) : DISTRICTS;
-      pool
-        .filter(d => !q || d.name.toLowerCase().includes(q) || d.bn.toLowerCase().includes(q))
-        .forEach(d => list.appendChild(item(d.name, `id ${d.id} • ${d.bn}`, () => {
-          selDist = d; selUpa = null;
-          renderUpazilas(); chips(); setCode();
+      pool.filter(d => !q || d.name.toLowerCase().includes(q) || d.bn.toLowerCase().includes(q))
+        .forEach(d => list.appendChild(item(d, () => {
+          selDist = d; selUpa = null; if (!selDiv) selDiv = DIVISIONS.find(div => div.id === d.division_id) || null;
+          rerenderAll();
         })));
     }
 
     function renderUpazilas() {
-      const q = $("#qUpa").value.trim().toLowerCase();
-      const list = $("#listUpa"); list.innerHTML = "";
-      const pool = selDist ? UPAZILAS.filter(x => toInt(x.district_id) === toInt(selDist.id)) : [];
-      if (!pool.length) {
-        const empty = document.createElement('div');
-        empty.className = 'item'; empty.innerHTML = '<div class="subtitle">No upazila found for this district.</div>';
-        list.appendChild(empty); return;
+      const q = $("#qUpa").value.trim().toLowerCase(); const list = $("#listUpa"); list.innerHTML = "";
+      let pool = UPAZILAS;
+      if (selDist) { pool = UPAZILAS.filter(x => toInt(x.district_id) === toInt(selDist.id)); }
+      else if (selDiv) {
+        const distIdsInDiv = DISTRICTS.filter(d => toInt(d.division_id) === toInt(selDiv.id)).map(d => d.id);
+        pool = UPAZILAS.filter(u => distIdsInDiv.includes(toInt(u.district_id)));
       }
-      pool
-        .filter(u => !q || u.name.toLowerCase().includes(q) || u.bn.toLowerCase().includes(q))
-        .forEach(u => list.appendChild(item(u.name, `id ${u.id} • ${u.bn}`, () => {
-          selUpa = u; chips(); setCode();
+      pool.filter(u => !q || u.name.toLowerCase().includes(q) || u.bn.toLowerCase().includes(q))
+        .forEach(u => list.appendChild(item(u, () => {
+          selUpa = u;
+          if (!selDist) {
+            selDist = DISTRICTS.find(dist => dist.id === u.district_id) || null;
+            if (selDist && !selDiv) selDiv = DIVISIONS.find(div => div.id === selDist.division_id) || null;
+          }
+          rerenderAll();
         })));
     }
 
+    function rerenderAll() {
+      renderDivisions(); renderDistricts(); renderUpazilas();
+      updateCounters(); updateBreadcrumbs(); updateMap();
+      chips(); setCode(); updateURL();
+    }
+
+    function clearAllSelections() {
+      $("#qDiv").value = ""; $("#qDist").value = ""; $("#qUpa").value = "";
+      selDiv = selDist = selUpa = null; rerenderAll();
+    }
+
     /* =========================
-       EVENTS
+       EVENT LISTENERS
        ========================= */
     $("#qDiv").addEventListener("input", renderDivisions);
     $("#qDist").addEventListener("input", renderDistricts);
     $("#qUpa").addEventListener("input", renderUpazilas);
 
-    $("#clearDiv").onclick = () => {
-      $("#qDiv").value = ""; selDiv = null; selDist = null; selUpa = null;
-      renderDivisions(); renderDistricts(); renderUpazilas(); chips(); setCode();
-    };
-    $("#clearDist").onclick = () => {
-      $("#qDist").value = ""; selDist = null; selUpa = null;
-      renderDistricts(); renderUpazilas(); chips(); setCode();
-    };
-    $("#clearUpa").onclick = () => {
-      $("#qUpa").value = ""; selUpa = null; renderUpazilas(); chips(); setCode();
-    };
-    $("#clearAll").onclick = () => {
-      $("#qDiv").value = ""; $("#qDist").value = ""; $("#qUpa").value = "";
-      selDiv = selDist = selUpa = null; renderDivisions(); renderDistricts(); renderUpazilas(); chips(); setCode();
-    };
+    $("#clearDiv").onclick = () => { $("#qDiv").value = ""; clearAllSelections(); };
+    $("#clearDist").onclick = () => { $("#qDist").value = ""; selDist = null; selUpa = null; rerenderAll(); };
+    $("#clearUpa").onclick = () => { $("#qUpa").value = ""; selUpa = null; rerenderAll(); };
+    $("#clearAll").onclick = clearAllSelections;
 
     $("#copyBtn").onclick = async () => {
       const t = $("#code").textContent.trim(); if (!t || t === "—") return;
       try {
-        await navigator.clipboard.writeText(t);
-        $("#copyBtn").textContent = "Copied!";
+        await navigator.clipboard.writeText(t); $("#copyBtn").textContent = "Copied!";
         setTimeout(() => $("#copyBtn").textContent = "Copy", 900);
-      } catch (e) { }
+      } catch (e) { console.error('Copy failed', e); }
+    };
+
+    $("#themeToggle").onchange = (e) => {
+      document.body.classList.toggle('dark-mode', e.target.checked);
+      localStorage.setItem('geocodeTheme', e.target.checked ? 'dark' : 'light');
+    };
+
+    $("#langToggle").onchange = (e) => {
+      currentLanguage = e.target.checked ? 'bn' : 'en';
+      document.body.classList.toggle('lang-bn', e.target.checked);
+      localStorage.setItem('geocodeLang', currentLanguage);
+      rerenderAll();
     };
 
     /* =========================
-       INIT
+       INITIALIZE THE APP
        ========================= */
-    renderDivisions(); renderDistricts(); renderUpazilas(); chips(); setCode();
+    function init() {
+      const savedTheme = localStorage.getItem('geocodeTheme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        $("#themeToggle").checked = true;
+      }
+      if (currentLanguage === 'bn') {
+        document.body.classList.add('lang-bn');
+        $("#langToggle").checked = true;
+      }
+
+      handleURLParams();
+      initMap();
+      rerenderAll();
+    }
+
+    function handleURLParams() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('geocode');
+      if (!code || ![2, 4, 7].includes(code.length)) return;
+      const divId = parseInt(code.slice(0, 2), 10);
+      selDiv = DIVISIONS.find(d => d.id === divId) || null;
+      if (code.length >= 4 && selDiv) {
+        const distId = parseInt(code.slice(2, 4), 10);
+        selDist = DISTRICTS.find(d => d.id === distId && d.division_id === divId) || null;
+      }
+      if (code.length === 7 && selDist) {
+        const upaId = parseInt(code.slice(4, 7), 10);
+        selUpa = UPAZILAS.find(u => u.id === upaId && u.district_id === selDist.id) || null;
+      }
+    }
+
+    init();
   </script>
 
   <script>
-    /* Reverse lookup (fixed): reads existing arrays directly (no window.*) */
     (function () {
-      function chip(txt) {
-        const s = document.createElement('span');
-        s.className = 'chip';
-        s.textContent = txt;
-        return s;
-      }
+      function chip(txt) { const s = document.createElement('span'); s.className = 'chip'; s.textContent = txt; return s; }
       function showResult(parts) {
-        const box = document.getElementById('revResult');
-        box.innerHTML = '';
-        if (!parts || !parts.length) {
-          box.innerHTML = '<span class="small">Not found. Check the code.</span>';
-          return;
-        }
+        const box = document.getElementById('revResult'); box.innerHTML = '';
+        if (!parts || !parts.length) { box.innerHTML = '<span class="small">Not found.</span>'; return; }
         parts.forEach(p => box.appendChild(chip(p)));
-      }
-      function arrays() {
-        // Safely access globals even if undefined
-        return {
-          DIVS: (typeof DIVISIONS !== 'undefined') ? DIVISIONS : [],
-          DISTS: (typeof DISTRICTS !== 'undefined') ? DISTRICTS : [],
-          UPAS: (typeof UPAZILAS !== 'undefined') ? UPAZILAS : []
-        };
       }
       function lookupFromCode() {
         const raw = (document.getElementById('revCode').value || '').trim();
         const digits = (raw.match(/\d+/g) || []).join('');
         if (!digits || ![2, 4, 7].includes(digits.length)) { showResult([]); return; }
-
-        const { DIVS, DISTS, UPAS } = arrays();
-
+        const lang = document.body.classList.contains('lang-bn') ? 'bn' : 'en';
         const divId = parseInt(digits.slice(0, 2), 10);
-        const div = DIVS.find(d => d.id === divId);
+        const div = DIVISIONS.find(d => d.id === divId);
         if (!div) { showResult([]); return; }
-
-        const out = [`Division: ${div.name} (id ${div.id})`];
-
+        const out = [`${lang === 'bn' ? 'বিভাগ' : 'Division'}: ${lang === 'bn' ? div.bn : div.name}`];
         if (digits.length >= 4) {
           const distId = parseInt(digits.slice(2, 4), 10);
-          const dist = DISTS.find(d => d.id === distId && d.division_id === divId);
+          const dist = DISTRICTS.find(d => d.id === distId && d.division_id === divId);
           if (!dist) { showResult(out); return; }
-          out.push(`District: ${dist.name} (id ${dist.id})`);
-
+          out.push(`${lang === 'bn' ? 'জেলা' : 'District'}: ${lang === 'bn' ? dist.bn : dist.name}`);
           if (digits.length === 7) {
             const upaId = parseInt(digits.slice(4, 7), 10);
-            const upa = UPAS.find(u => u.id === upaId && u.district_id === distId);
-            if (upa) out.push(`Upazila: ${upa.name} (id ${upa.id})`);
+            const upa = UPAZILAS.find(u => u.id === upaId && u.district_id === distId);
+            if (upa) out.push(`${lang === 'bn' ? 'উপজেলা' : 'Upazila'}: ${lang === 'bn' ? upa.bn : upa.name}`);
           }
         }
         showResult(out);
       }
-
       document.getElementById('revBtn').addEventListener('click', lookupFromCode);
-      document.getElementById('revCode').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') lookupFromCode();
-      });
+      document.getElementById('revCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookupFromCode(); });
     })();
   </script>
+
 </body>
 
 </html>
